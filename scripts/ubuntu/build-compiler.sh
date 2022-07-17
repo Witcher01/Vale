@@ -5,6 +5,27 @@
 
 set -eu
 
+usage() {
+  printf "usage: $0 [-j JAVA_PATH] LLVM_DIR BOOTSTRAPPING_VALEC_DIR\n"
+
+  exit 1
+}
+
+while getopts "hj:" opt; do
+  case ${opt} in
+    j)
+      java_home="--java-home ${OPTARG}"
+      ;;
+    h)
+      usage
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
 LLVM_DIR="$1"
 if [ "$LLVM_DIR" == "" ]; then
   echo "Please supply the LLVM directory."
@@ -56,7 +77,7 @@ shift;
 cd Frontend
 
 echo Compiling Frontend...
-sbt assembly || { echo 'Frontend build failed.' ; exit 1; }
+sbt ${java_home} assembly || { echo 'Frontend build failed.' ; exit 1; }
 
 cd ../Backend
 
